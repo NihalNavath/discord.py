@@ -644,6 +644,7 @@ class Member(discord.abc.Messageable, _UserTag):
         roles: List[discord.abc.Snowflake] = MISSING,
         voice_channel: Optional[VocalGuildChannel] = MISSING,
         reason: Optional[str] = None,
+        timed_out_until: Optional[datetime.datetime] = MISSING,
     ) -> Optional[Member]:
         """|coro|
 
@@ -746,6 +747,12 @@ class Member(discord.abc.Messageable, _UserTag):
 
         if roles is not MISSING:
             payload['roles'] = tuple(r.id for r in roles)
+
+        if timed_out_until is not MISSING:
+            if timed_out_until is None:
+                payload["communication_disabled_until"] = None
+            else:
+                payload["communication_disabled_until"] = timed_out_until.isoformat()
 
         if payload:
             data = await http.edit_member(guild_id, self.id, reason=reason, **payload)
